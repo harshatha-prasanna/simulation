@@ -7,24 +7,43 @@
 
   <!-- Assets -->
   <include file="simpleTable/simpleTable_asset.xml"/>
+  <include file="panda/mjcf/panda_asset.xml"/>
+  <include file="bin/bin_asset.xml"/>
 
   <!-- Scene -->
-  <include file="scene.xml"/> 
+  <include file="scene.xml"/>
 
-  
+
   <!-- Scene Objects -->
   <worldbody>
-    <camera name="fixed" pos="0 0 5" quat="1 0 0 0" fovy="45"/>
+    <!-- Angled view of the workspace (camera looks along its -z axis; xyaxes = camera right/up) -->
+    <camera name="fixed" pos="0.9 -1.1 1.55" xyaxes="0.676 0.737 0 -0.273 0.251 0.929" fovy="45"/>
 
- 
-
-    <!-- Table -->
+    <!-- Table: top surface at z = 0.76 -->
     <include file="simpleTable/simpleWoodTable_body.xml"/>
 
-   
+    <!-- Panda arm: base on the tabletop near the -x end, facing +x -->
+    <body name="panda_arm" pos="-0.6 0 0.76">
+      <include file="panda/mjcf/panda_body.xml"/>
+    </body>
+
+    <!-- Cube: 4 cm, free to move (6 DoF, 7 qpos values) -->
+    <body name="cube" pos="-0.1 -0.15 0.78">
+      <freejoint name="cube_joint"/>
+      <geom name="cube_geom" type="box" size="0.02 0.02 0.02" rgba="0.1 0.4 0.9 1" mass="0.05"/>
+    </body>
+
+    <!-- Bin: fixed to the world, floor resting on the tabletop -->
+    <body name="bin" pos="-0.1 0.2 0.765">
+      <include file="bin/bin_body.xml"/>
+    </body>
   </worldbody>
 
-
-
- 
+  <!-- Home pose: 7 arm joints + 2 fingers, then cube pose (x y z qw qx qy qz).
+       ctrl matches the arm angles so the position actuators hold the pose; 255 = gripper open. -->
+  <keyframe>
+    <key name="home"
+         qpos="0 0.392699 0 -1.9635 0 2.35619 0.785398 0.04 0.04  -0.1 -0.15 0.78 1 0 0 0"
+         ctrl="0 0.392699 0 -1.9635 0 2.35619 0.785398 255"/>
+  </keyframe>
 </mujoco>
